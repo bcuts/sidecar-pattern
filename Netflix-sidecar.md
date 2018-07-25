@@ -1,3 +1,33 @@
+
+# 1. Sidecar Pattern
+
+# Neflix Sidecar
+
+### Prana
+Netflix PaaS 생태계를 구성하는 라이브러리들의 대부분이 Java로 구현돼 있기 때문에 non-Java 서비스들을 위한 Polyglot 경을 위해 Netflix에서 Prana Sidecar를 사용합니다.
+
+<img height="400" src="images/netflixoss-prana.png">
+
+Prana 기능
+- Eureka Registration
+- Service discovery
+- Dynamic Properties
+- Proxy
+- Healthcheck
+- Admin UI
+
+### Spring Cloud Netflix Sidecar
+Netflix Prana로 부터 영향을 받은 Spring Cloud Netflix Sidecar는 non-JVM 서비스들이 Eureka, Ribbon, Config Server를 사용할 수 있도록 합니다.
+
+<img height="300" src="images/spring-cloud-netflix-sidecar.png">
+
+Neflix Sidecar 기능
+- service discovery : host:port/ 를 통하여 다른 방법에 비해 편하게 Non-JVM 어플리케이션에서 다른 Eureka 클라이언트를 찾을 수 있다.
+- monitoring : health check uri 설정을 통해 Eureka서버에서 Non-JVM 어플리케이션의 동작 여부를 알수 있다.
+- routing / proxying : Zuul을 통하여 Request를 받을 수 있다.
+- balancing : 내장된 Ribbon을 통해 Client side load balancing 기능을 지원 한다.
+- counfiguration : Spring Cloud Config를 통하여 configuration properties를 받을 수 있다.
+
 # Service Mesh
 Microservice Architecture에서는 수 많은 서비스들의 인스턴가 동적으로 올라오고 사라집니다.  
 또한 Monolitic Architecture에서 프로세스나 쓰레드와 같은 인스턴스 내부에서 처리하던 기능들이 MSA 환경에선 서비스 간 통신을 통해서 데이터를 처리합니다.   
@@ -36,9 +66,8 @@ Sidecar pattern을 적용하여 구현 된 Service Mesh Platform은 아래와 �
 - **Istio** by Google, IBM, Lyft
 - **linkerd**, **conduit** by Buoyant
 
-
-# Service Mesh platform - istio
-
+# Service Mesh platform
+# Istio
 Miscroservices들의 network를 관리하기 위한 platform  
 Netflix OSS와는 다르게 **소스 코드 변경 없고, Java App이 아니더라도** 아래 기능에 대한 지원이 가능(Sidecar pattern)
 - Service discovery
@@ -143,6 +172,7 @@ Virtual service에 Istio service mesh에서 서비스간에 어떻게 요청을 
 TBD
 
 출처 https://istio.io/
+## Linkerd
 
 
 일정
@@ -154,3 +184,6 @@ TBD
 3 or 4주 후 부터 DEP POC 8/20 ~ 9/7
 
 정리 및 보고 9/10 ~ 9/12
+
+
+버퍼 17
