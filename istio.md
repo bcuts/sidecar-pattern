@@ -22,7 +22,7 @@ envoy같은 sidecar proxy를 통해 istio가
 - Data plane(proxy)  
   Sidecar pattern으로 서비스에 포함되며 App 서비스들간의 모든 통신 및 Control plane과의 통신을 제어
 
-<img height="400" src="images/istio-architecture.PNG">  
+<img height="400" src="images/istio-architecture.png">  
 
 #### Envoy
 서비스들의 모든 트래픽에 관여하여 service mesh 구성을 지원하기 위해 아래 기능을 제공  
@@ -49,7 +49,7 @@ sidecar proxy를 관리하고
 - load balancing pool update
 - Resiliency(timeout, retires, circuit breakers)   
 
-<img height="450" src="images/pilot-architecture.PNG">    
+<img height="450" src="images/pilot-architecture.png">    
 
 #### Citadel  
 service간의 통신이나 end-user 사이에 자체 credential을 이용한 인증 기능을 제공 함
@@ -60,19 +60,19 @@ service간의 통신이나 end-user 사이에 자체 credential을 이용한 인
 서비스 A는 envoy의 routing rule에 따라 서비스 B를 호출 함  
 서비스 A는 다른 서비스에 대한 정보를 별도로 포함하거나 관리하지 않음  
 
-<img height="600" src="images/istio-communication-services.PNG">  
+<img height="600" src="images/istio-communication-services.png">  
 
 #### Ingress and egress
 내부 서비스 통신 외에 외부 서비스 API 호출도 envoy를 통해 할 수 있음  
 이 경우 외부 API에도 Resiliency(timeout, retires, circuit breakers) 적용 가능  
 
-<img height="250" src="images/envoy-in-e-gress.PNG">  
+<img height="250" src="images/envoy-in-e-gress.png">  
 
 #### Discovery and Load Balancing
 Kubenetes같은 플랫폼을 통해 서비스가 등록되고,  
 이를 Envoy가 discover하고 loadbalancing 하며 접근 함   
 
-<img height="430" src="images/envoy-discovery-lb.PNG">  
+<img height="430" src="images/envoy-discovery-lb.png">  
 
 #### 기타
 - Handling failure(by envoy)
