@@ -1,5 +1,5 @@
 # Istio
-Miscroservices들의 network를 관리하기 위한 platform  
+Miscroservices들의 network(Serivce Mesh)를 관리하기 위한 platform  
 Netflix OSS와는 다르게 **소스 코드 변경 없고, Java App이 아니더라도** 아래 기능에 대한 지원이 가능(Sidecar pattern)
 - Service discovery
 - Load balancing
