@@ -16,16 +16,16 @@ v1alpha3 버전에서는 트래픽 라우팅 관리를 위해 다음 4개의 설
 
 ### Gateway
 Gateway는 HTTP/TCP 트래픽에 대한 로드밸런싱 설정을 합니다.  
-Gateway는 다른 설정으로 여러 개 둘 수 있고 pod label을 명시해서 특정 작업에만 바운딩 되게 할 수 있습니다.
-트래픽 관리에 왜 Kubernetess Ingress APIs를 사용하지 않는지 궁금증이 생길 수 있는데요.  
-Ingress API는 Istio가 원하는 라우팅 요구사항을 다 충족하지 않습니다.   
+Gateway는 다른 설정으로 여러 개 둘 수 있고 pod label을 명시해서 특정 작업에만 바운딩 되게 할 수 있습니다.  
+그렇다면 왜 트래픽 관리에 이미 존재하는 Kubernetes Ingress APIs를 사용하지 않을까요?      
+Ingress API는 Istio가 원하는 라우팅 요구사항을 모두 제공하지 않기 때문입니다.  
 예를들면, Ingress는 대부분 기본적인 HTTP 라우팅만 가능하고 다른 프록시 설정들은 사용하기 불편한 어노테이션 기반으로 작성해야 합니다.
 
 Istio Gateway는 L4-L6 스펙을 L7으로부터 분리해서 Ingress의 단점을 극복했습니다.  
 사용자들은 Gateway로 들어오는 트래픽을 VirtualService에 바인딩하여  
 HTTP 뿐만 아니라 TCP 트래픽 설정을 표준화된 Istio rule로 설정할 수 있습니다.
 
-eg) bookinfo.com 호스트에 대한 외부 https 트래픽을 받는 Gateway 로드밸런싱 설정입니다.     
+bookinfo.com 호스트에 대한 외부 https 트래픽을 받는 Gateway 로드밸런싱 설정입니다.     
 ```yml
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
@@ -44,7 +44,7 @@ spec:
       serverCertificate: /tmp/tls.crt
       privateKey: /tmp/tls.key
 ```
-라우팅 설정을 위해 동일한 호스트로 정의된 VirtualService를 만들고 gateways 필드에 위에서 만든 Gateway를 바우딩해줍니다.
+라우팅 설정을 위해 동일한 호스트로 정의된 VirtualService를 만들고 gateways 필드에 위에서 만든 Gateway를 바운딩해줍니다.
 ```yml
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
