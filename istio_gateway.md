@@ -1,13 +1,10 @@
+# Istio Gateway
 Istio는 트래픽 관리를 위해 RouteRule, DestinationPolicy,EgressRule,Ingress(Kubernetes)를 사용하는 API를 지원합니다.   
 API를 통해서 특정 버전의 서비스로 라우팅하거나, delay 설정, failures, timeout, circuit breakers.. 등의 설정을 코드 변경없이 적용할 수 있습니다.
 
-## Configuration resources in v1alpha3
-
-Gateway In Istio Service Mesh
-하나 이상의 로드밸런서를 가진 (Ingress)Gateway mesh는 외부 트래픽을 받아 sidecar gateway로 전달하여 내부 서비스로 접근합니다.  
-외부 서비스에 접속하기 위해선 sidecar gateway에서 egress gateway를 통해 직접 접근합니다.
-
 <img height="300" src="images/istio-gateways.svg">
+
+하나 이상의 로드밸런서를 가진 (Ingress)Gateway mesh는 외부 트래픽을 받아 sidecar gateway로 전달하여 내부 서비스로 접근합니다. 외부 서비스에 접속하기 위해선 sidecar gateway에서 egress gateway를 통해 직접 접근합니다.
 
 v1alpha3 버전에서는 트래픽 라우팅 관리를 위해 다음 4개의 설정을 사용합니다.
 1. Geateway
@@ -85,12 +82,14 @@ spec:
     route:
     - destination:
         host: reviews
+        subset: v1
   - match:
     - uri:
         prefix: /ratings
     route:
     - destination:
         host: ratings
+        subset: v2
   ...
 ```
 
@@ -123,5 +122,41 @@ spec:
       version: v3
 ```
 
+### ServiceEntry
+외부 서비스에 접속하기 위해선 아래와 같이 ServiceEntry를 만들고 접속할 서비스에 대한 설정을 합니다.
+```yml
+cat <<EOF | istioctl create -f -
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: google-ext
+spec:
+  hosts:
+  - www.google.com
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+EOF
+```
+
+ServiceEntry에 대한 VirtualService를 만들어 라우팅 설정을 할 수 있습니다.
+```yml
+cat <<EOF | istioctl create -f -
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: google-ext
+spec:
+  hosts:
+    - www.google.com
+  http:
+  - timeout: 3s
+    route:
+      - destination:
+          host: www.google.com
+        weight: 100
+EOF
+```
 
 참고 https://istio.io/blog/2018/v1alpha3-routing/
