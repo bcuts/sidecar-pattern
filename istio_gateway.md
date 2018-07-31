@@ -64,9 +64,9 @@ spec:
 ```
 
 ### VirtualService
-Gateway에 대한 라우팅 설정을 VirtualService에 해줍니다.
-동일한 호스트 정보로 VirtualService를 Gateway에 바운딩하여 해당 호스트를 외부로 노출시켜 줍니다.  
-각각의 서비스 버전은 service subset 이름을 가지는데 해당 정보는 DestinationRule에 설정합니다.  
+VirtualService에서는 dynamic routing 설정을 해줍니다.  
+동일한 호스트명으로 VirtualService를 Gateway에 바운딩하여 해당 호스트를 외부로 노출시킬 수도 있습니다.    
+각각의 서비스 버전은 service subset 이름을 가지는데 해당 정보는 DestinationRule의 값과 매핑되어 추가적인 설정이 가능합니다.    
 ```yml
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -74,22 +74,33 @@ metadata:
   name: bookinfo
 spec:
   hosts:
-    - bookinfo.com
+    - bookinfo.com    
   http:
-  - match:
+  - match:    # path 매칭 라우팅
     - uri:
         prefix: /reviews
     route:
     - destination:
         host: reviews
         subset: v1
-  - match:
-    - uri:
-        prefix: /ratings
+  - match:    # header 조건 매칭 라우팅
+    - headers:
+        cookie:
+          regex: ^(.*?;)?(user=jason)(;.*)?$
     route:
     - destination:
-        host: ratings
+        host: reviews
         subset: v2
+  - route:    # 비율에 따른 버젼 라우팅
+    - destination:
+        host: reviews
+        subset: v1
+      weight: 50
+  - route:
+    - destination:
+        host: reviews
+        subset: v3
+      weight: 50        
   ...
 ```
 
