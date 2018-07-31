@@ -118,6 +118,12 @@ spec:
   trafficPolicy:
     loadBalancer:
       simple: RANDOM
+    outlierDetection:   # for circuit breakers, will return 503.
+      http:
+        consecutiveErrors: 1
+        interval: 1.000s
+        baseEjectionTime: 180.000s        
+        maxEjectionPercent: 100      
   subsets:
   - name: v1
     labels:
@@ -131,6 +137,8 @@ spec:
   - name: v3
     labels:
       version: v3
+           
+      
 ```
 
 ### ServiceEntry
