@@ -1,7 +1,7 @@
 # Service Mesh
 Microservice Architecture에서는 수 많은 서비스들의 인스턴가 동적으로 올라오고 사라집니다.  
 또한 Monolitic Architecture에서 프로세스나 쓰레드와 같은 인스턴스 내부에서 처리하던 기능들이 MSA 환경에선 서비스 간 통신을 통해서 데이터를 처리합니다.   
-이러한 복잡한 상황에서 ![내부 네트워크를 안정적으로 유지](https://placehold.it/15/1589F0/000000?text=+) `#1589F0` 하기 위해 Service Mesh라는 개념이 필요하게 되었습니다.  
+이러한 복잡한 상황에서 **내부 네트워크를 안정적으로 유지** 하기 위해 Service Mesh라는 개념이 필요하게 되었습니다.  
 Service Mesh는 Infrastructure Layer로 서비스 간 통신을 빠르고 신뢰할 수 있게 만들어 줍니다.     
 
 Service Mesh
@@ -34,8 +34,9 @@ Sidecar pattern을 적용하여 구현 된 Service Mesh Platform은 아래와 �
 # Service Mesh platform - istio
 
 Miscroservices들의 network를 관리하기 위한 platform  
-Netflix OSS와는 다르게 **소스 코드 변경 없고, Java App이 아니더라도** 서비스 가능(Sidecar pattern)
-<img height="300" src="images/istio.png">  
+Netflix OSS와는 다르게 **소스 코드 변경 없고, Java App이 아니더라도** 서비스 가능(Sidecar pattern)  
+yaml 설정 파일을 생성하여 API로 호출하여 적용하는 방식  
+<img height="450" src="images/istio.png">  
 
 각 서비스에서 발생하는 모든 network traffic을  
 envoy같은 sidecar proxy를 통해 istio가 수집하고 분석하여 service mesh를 지원   
@@ -85,11 +86,11 @@ envoy같은 sidecar proxy를 통해 istio가 수집하고 분석하여 service m
 ## 2. 주요기능
 
 ### A. Traffic Management  
-#### Communication between services
-서비스 A는 envoy의 routing rule에 따라 서비스 B를 호출 함  
-서비스 A는 다른 서비스에 대한 정보를 별도로 포함하거나 관리하지 않음  
+#### Discovery and Load Balancing
+Kubenetes같은 플랫폼을 통해 서비스가 등록되고,  
+이를 Envoy가 discover하고 loadbalancing 하며 접근 함   
 
-<img height="600" src="images/istio-communication-services.png">  
+<img height="430" src="images/envoy-discovery-lb.png">  
 
 #### Ingress and egress
 내부 서비스 통신 외에 외부 서비스 API 호출도 envoy를 통해 할 수 있음  
@@ -97,28 +98,143 @@ envoy같은 sidecar proxy를 통해 istio가 수집하고 분석하여 service m
 
 <img height="250" src="images/envoy-in-e-gress.png">  
 
-#### Discovery and Load Balancing
-Kubenetes같은 플랫폼을 통해 서비스가 등록되고,  
-이를 Envoy가 discover하고 loadbalancing 하며 접근 함   
+#### Communication between services
+서비스 A는 envoy의 routing rule에 따라 서비스 B를 호출 함  
+svcA 자체는 다른 서비스에 대한 정보를 별도로 포함하거나 관리하지 않음  
 
-<img height="430" src="images/envoy-discovery-lb.png">  
+<img height="600" src="images/istio-communication-services.png">  
 
-#### 기타
-- Handling failure(by envoy)
-  - timeouts
-  - retires
-  - 통시 접속 connections 수 제한
-  - health check
-  - circuit breakers
-- Fault injection
-  - 서비스를 죽이지 않고, 일부러 fault를 발생하여 다양한 테스트 가능  
+```yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: serviceB-vs
+spec:
+  hosts:
+  - serviceB
+  http:
+  - route:
+    - destination:
+        host: serviceB
+        subset: v1
+     weight: 99
+    - destination:
+        host: serviceB
+        subset: v2        
+     weight: 1
+```
+> VirtualService가 Dynamic Routing 설정을 위해 사용 됨  
 
-### B. Security
+#### Handling failure(by envoy)
+- timeouts
+- retires
+- 통시 접속 connections 수 제한
+- health check
+- circuit breakers    
+
+```yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: ServiceA
+spec:
+  host: ServiceA
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 1
+      http:
+        http1MaxPendingRequests: 1
+        maxRequestsPerConnection: 1
+    outlierDetection:
+      consecutiveErrors: 1
+      interval: 1s
+      baseEjectionTime: 3m
+      maxEjectionPercent: 100
+```
+
+> DestionationRule에 failure 관련 설정 하게 됨  
+> circuit open 되는 경우 503에러 코드를 return 하고, 이를 Client에서 에러 처리 해야 함  
+
+#### mirroring
+모든 live 트래픽을 mirroring하여 다른 서비스로 전송
+이에 대한 response는 없음
+```yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: httpbin
+spec:
+  hosts:
+    - httpbin
+  http:
+  - route:
+    - destination:
+        host: httpbin
+        subset: v1
+      weight: 100
+    mirror:
+      host: httpbin
+      subset: v2
+```
+> httpbin v1 서비스로 모든 요청을 전송하며, v2로도 mirroring된 트래픽을 전송
+
+#### Fault injection
+서비스를 죽이지 않고, 일부러 fault를 발생하여 다양한 테스트 가능  
+
+```yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: ratings
+spec:
+  hosts:
+  - ratings
+  http:
+  - match:
+    - headers:
+        end-user:
+          exact: jason
+    fault:
+      delay:
+        percent: 100
+        fixedDelay: 7s
+    route:
+    - destination:
+        host: ratings
+        subset: v1
+```        
+> header에 jason이 포함 된 경우 7초간 지연 후 라우팅 되게 함  
+
+### Netflix OSS와의 비교
+
+|                       | Netflix OSS   | Istio over Kubernetes |
+|-----------------------|---------------|-----------------------|
+| Service Discovery     | Eureka        | Kubernetes DNS        |
+| Client  LoadBalancing | Ribbon        | Envoy proxy           |
+| Gateway               | Zuul          | Istio gateway         |
+| Circuit Breaker       | Hystrix       | Envoy proxy           |
+| Config                | Config Server | Kubernetes Config Map |
+
+Metric  
+
+|                       | Netflix OSS   | Istio over Kubernetes |
+|-----------------------|---------------|-----------------------|
+| Tracing               | Zipkin        | Zipkin, Jagger        |
+| Logging               | EFK           | EFK                   |
+| Telemetry               | ???           | Prometheus                   |
+| etc..                 | Feign         | ???                   |
+
+### B. Gateway
+[Istio Gateway 설명 참고](
+https://github.com/SDSACT/sidecar-pattern/blob/master/istio_gateway.md)
+
+### C. Security
 App 서비스들을 고유하게 관리하고 서비스들 간의 통신을 보호  
 
 TBD  
 
-### C. Policies and Telemetry
+### D. Policies and Telemetry
 서비스 정책 rule을 범용 적용 가능  
 서비스들간의 의존도 및 상태를 모니터링 하기 위한 Metric 제공  
 
@@ -135,15 +251,13 @@ TBD
 
 일정
 
-금주 조사  ~ 7/27
-2주후 까지 구현  7/30 ~ 8/17
-1주후 DEP 구성을 위한 DEP 현황 공유 8/8일쯤
-
-3 or 4주 후 부터 DEP POC 8/20 ~ 9/7
-
-정리 및 보고 9/10 ~ 9/12
+금주 조사  ~ 7/27  
+2주후 까지 구현  7/30 ~ 8/17  
+1주후 DEP 구성을 위한 DEP 현황 공유 8월초    
+3 or 4주 후 부터 DEP POC 8/20 ~ 9/7  
+정리 및 보고 9/10 ~ 9/12  
 
 
-192.168.10.77 마스터 actmember@jeep8walrus
-192.168.10.230 미니언1
-192.168.30.194 미니언2
+192.168.10.77 마스터 actmember@jeep8walrus  
+192.168.10.230 미니언1  
+192.168.30.194 미니언2  
