@@ -27,15 +27,18 @@ Service Mesh의 초기 모델은 각 서비스마다 공통적으로 적용되�
 서비스와 분리되어 실행되기 때문에 비즈니스 로직과 네트워크 관련 로직을 분리할 수 있습니다.  
 이 경량화 Proxy에는 Routing rule, Circuit Breaker, 모니터링 등의 공통 기능을 적용하게 됩니다.
 
-각 서비스의 Sidecar Proxy들을 개별적으로 관리하기 어려워서 이 Proxy들을 중앙에서 관리하기 위한   
-아래와 같은 Service Mesh Architecture들이 나왔습니다.
+### 3. Service Mesh paltform
+마이크로 서비스의 Sidecar Proxy들을 개별적으로 관리하기 어려워서   
+이 Proxy를 통해 **마이크로 서비스 전체를 관리** 하기 위한 아래와 같은 Service Mesh Platform들이 나왔습니다.
 
 - **Istio** by Google, IBM, Lyft
 - **linkerd**, **conduit** by Buoyant  
 
 이러한 플랫폼은 개별 Sidecar Proxy들의 network traffic을 관리하거나 metrics 수집 등의 기능을 합니다.
-
 참고) http://philcalcado.com/2017/08/03/pattern_service_mesh.html
+
+### * Service Meshes
+<img height="300" src="images/ServiceMesh-story.png">  
 
 # Service Mesh platform - istio
 
