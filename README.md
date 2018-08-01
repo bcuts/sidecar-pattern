@@ -266,7 +266,9 @@ Metric
 3 or 4주 후 부터 DEP POC 8/20 ~ 9/7  
 정리 및 보고 9/10 ~ 9/12  
 
-Bookinfo 샘플 프로젝트 : http://192.168.10.77:31380/productpage
+Bookinfo 샘플 프로젝트 :   
+https://istio.io/docs/examples/bookinfo/  
+http://192.168.10.77:31380/productpage
 
 192.168.10.77 마스터 actmember@jeep8walrus  
 192.168.20.230 미니언1  
