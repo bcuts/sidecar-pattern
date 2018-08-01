@@ -33,17 +33,15 @@ kind: Gateway
 metadata:
   name: bookinfo-gateway
 spec:
+  selector:
+    istio: ingressgateway # use istio default controller
   servers:
   - port:
-      number: 443
-      name: https
-      protocol: HTTPS
+      number: 80
+      name: http
+      protocol: HTTP
     hosts:
     - bookinfo.com
-    tls:
-      mode: SIMPLE
-      serverCertificate: /tmp/tls.crt
-      privateKey: /tmp/tls.key
 ```
 라우팅 설정을 위해 동일한 호스트로 정의된 VirtualService를 만들고 gateways 필드에 위에서 만든 Gateway를 바운딩해줍니다.
 ```yml
@@ -138,8 +136,6 @@ spec:
   - name: v3
     labels:
       version: v3
-
-
 ```
 
 ### ServiceEntry
