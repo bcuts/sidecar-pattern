@@ -4,10 +4,11 @@ API를 통해서 특정 버전의 서비스로 라우팅하거나, delay 설정,
 
 <img height="300" src="images/istio-gateways.svg">
 
-하나 이상의 로드밸런서를 가진 (Ingress)Gateway mesh는 외부 트래픽을 받아 sidecar gateway로 전달하여 내부 서비스로 접근합니다. 외부 서비스에 접속하기 위해선 sidecar gateway에서 egress gateway를 통해 직접 접근합니다.
+하나 이상의 (Ingress)Gateway mesh는 외부 트래픽을 받아 sidecar proxy로 전달하여 내부 서비스로 접근합니다.  
+외부 서비스에 접속하기 위해선 sidecar proxy에서 egress gateway를 통해 직접 접근합니다.
 
 v1alpha3 버전에서는 트래픽 라우팅 관리를 위해 다음 4개의 설정을 사용합니다.
-1. Geateway
+1. Gateway
 2. VirtualService
 3. DestinationRule
 4. ServiceEntry
@@ -18,7 +19,7 @@ v1alpha3 버전에서는 트래픽 라우팅 관리를 위해 다음 4개의 설
 Gateway는 HTTP/TCP 트래픽에 대한 로드밸런싱 설정을 합니다.  
 Gateway는 다른 설정으로 여러 개 둘 수 있고 pod label을 명시해서 특정 작업에만 바운딩 되게 할 수 있습니다.  
 그렇다면 왜 트래픽 관리에 이미 존재하는 Kubernetes Ingress APIs를 사용하지 않을까요?      
-Ingress API는 Istio가 원하는 라우팅 요구사항을 모두 제공하지 않기 때문입니다.  
+Kubernetes의 Ingress API는 Istio가 원하는 라우팅 요구사항을 모두 제공하지 않기 때문입니다.  
 예를들면, Ingress는 대부분 기본적인 HTTP 라우팅만 가능하고 다른 프록시 설정들은 사용하기 불편한 어노테이션 기반으로 작성해야 합니다.
 
 Istio Gateway는 L4-L6 스펙을 L7으로부터 분리해서 Ingress의 단점을 극복했습니다.  
@@ -137,8 +138,8 @@ spec:
   - name: v3
     labels:
       version: v3
-           
-      
+
+
 ```
 
 ### ServiceEntry

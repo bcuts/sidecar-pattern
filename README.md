@@ -25,11 +25,17 @@ Service Mesh의 초기 모델은 각 서비스마다 공통적으로 적용되�
 각 서비스에 Sidecar Proxy를 적용하여 마이크로서비스간 요청이 해당 proxy를 통해 라우팅되도록 합니다.  
 이때 Sidecar Proxy는 Application code 내부에 들어가는 것이 아니라  
 서비스와 분리되어 실행되기 때문에 비즈니스 로직과 네트워크 관련 로직을 분리할 수 있습니다.  
-이 경량화 Proxy에는 Routing rule, Circuit Breaker, 모니터링 등의 공통 기능을 적용하게 됩니다.   
+이 경량화 Proxy에는 Routing rule, Circuit Breaker, 모니터링 등의 공통 기능을 적용하게 됩니다.
 
-Sidecar pattern을 적용하여 구현 된 Service Mesh Platform은 아래와 같습니다.  
+각 서비스의 Sidecar Proxy들을 개별적으로 관리하기 어려워서 이 Proxy들을 중앙에서 관리하기 위한   
+아래와 같은 Service Mesh Architecture들이 나왔습니다.
+
 - **Istio** by Google, IBM, Lyft
 - **linkerd**, **conduit** by Buoyant  
+
+이러한 플랫폼은 개별 Sidecar Proxy들의 network traffic을 관리하거나 metrics 수집 등의 기능을 합니다.
+
+참고) http://philcalcado.com/2017/08/03/pattern_service_mesh.html
 
 # Service Mesh platform - istio
 
@@ -40,7 +46,7 @@ yaml 설정 파일을 생성하여 API로 호출하여 적용하는 방식
 
 각 서비스에서 발생하는 모든 network traffic을  
 envoy같은 sidecar proxy를 통해 istio가 수집하고 분석하여 service mesh를 지원   
-현재 Kubernetes를 통한 사용이 가능하고, Eureka에 등록 된 서비스들도 지원 가능  
+현재 Kubernetes를 통한 사용이 가능하고, Eureka에 등록 된 서비스들도 지원 가능
 
 > Lyft's envoy 사용으로  
 > Dynamic routing, service discovery, load balancing, TLS termination, gRPC 사용 가능  
@@ -206,25 +212,6 @@ spec:
 ```        
 > header에 jason이 포함 된 경우 7초간 지연 후 라우팅 되게 함  
 
-### Netflix OSS와의 비교
-
-|                       | Netflix OSS   | Istio over Kubernetes |
-|-----------------------|---------------|-----------------------|
-| Service Discovery     | Eureka        | Kubernetes DNS        |
-| Client  LoadBalancing | Ribbon        | Envoy proxy           |
-| Gateway               | Zuul          | Istio gateway         |
-| Circuit Breaker       | Hystrix       | Envoy proxy           |
-| Config                | Config Server | Kubernetes Config Map |
-
-Metric  
-
-|                       | Netflix OSS   | Istio over Kubernetes |
-|-----------------------|---------------|-----------------------|
-| Tracing               | Zipkin        | Zipkin, Jagger        |
-| Logging               | EFK           | EFK                   |
-| Telemetry               | ???           | Prometheus                   |
-| etc..                 | Feign         | ???                   |
-
 ### B. Gateway
 [Istio Gateway 설명 참고](
 https://github.com/SDSACT/sidecar-pattern/blob/master/istio_gateway.md)
@@ -249,6 +236,28 @@ TBD
 출처 https://istio.io/
 
 
+
+## Netflix OSS와의 비교
+
+|                       | Netflix OSS   | Istio over Kubernetes |
+|-----------------------|---------------|-----------------------|
+| Service Discovery     | Eureka        | Kubernetes DNS        |
+| Client  LoadBalancing | Ribbon        | Envoy proxy           |
+| Gateway               | Zuul          | Istio gateway         |
+| Circuit Breaker       | Hystrix       | Envoy proxy           |
+| Config                | Config Server | Kubernetes Config Map |
+
+Metric  
+
+|                       | ??? | Istio over Kubernetes |
+|-----------------------|---------------|-----------------------|
+| Tracing               | Zipkin        | Zipkin, Jagger        |
+| Logging               | EFK           | EFK                   |
+| Telemetry               | ???           | Prometheus                   |
+| etc..                 | Feign         | ???                   |
+
+
+
 일정
 
 금주 조사  ~ 7/27  
@@ -257,7 +266,8 @@ TBD
 3 or 4주 후 부터 DEP POC 8/20 ~ 9/7  
 정리 및 보고 9/10 ~ 9/12  
 
+Bookinfo 샘플 프로젝트 : http://192.168.10.77:31380/productpage
 
 192.168.10.77 마스터 actmember@jeep8walrus  
-192.168.10.230 미니언1  
+192.168.20.230 미니언1  
 192.168.30.194 미니언2  
