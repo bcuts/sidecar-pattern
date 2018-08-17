@@ -178,4 +178,7 @@ spec:
 EOF
 ```
 
-참고 https://istio.io/blog/2018/v1alpha3-routing/
+참고 
+routing in Api alpha3 -> https://istio.io/blog/2018/v1alpha3-routing/
+traffic routing -> https://istio.io/docs/reference/config/istio.networking.v1alpha3/
+virtualService -> https://istio.io/docs/reference/config/istio.networking.v1alpha3/#VirtualService
