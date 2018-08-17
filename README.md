@@ -97,7 +97,8 @@ envoy같은 sidecar proxy를 통해 istio가 수집하고 분석하여 service m
 ### A. Traffic Management  
 #### Discovery and Load Balancing
 Kubenetes같은 플랫폼을 통해 서비스가 등록되고,  
-이를 Envoy가 discover하고 loadbalancing 하며 접근 함   
+이를 Envoy가 discover하고 [loadbalancing] 하며 접근 함   
+> Envoy를 통한 loadbalancing 설정 [참고](https://github.com/SDSACT/sidecar-pattern/blob/master/istio_gateway.md#destinationrule)
 
 <img height="430" src="images/envoy-discovery-lb.png">  
 
