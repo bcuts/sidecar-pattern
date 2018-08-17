@@ -63,9 +63,12 @@ spec:
 ```
 
 ### VirtualService
-VirtualService에서는 dynamic routing 설정을 해줍니다.  
+VirtualService에서는 dynamic routing을 위한 가상 목적지를 설정 해줍니다.  
 동일한 호스트명으로 VirtualService를 Gateway에 바운딩하여 해당 호스트를 외부로 노출시킬 수도 있습니다.    
 각각의 서비스 버전은 service subset 이름을 가지는데 해당 정보는 DestinationRule의 값과 매핑되어 추가적인 설정이 가능합니다.    
+> 이전 버전인 config.istio.io/v1alpha2 의 경우 routeRule을 사용 했는데,  
+> 이는 외부 호스트 정보와 연결하여 routing 할 수는 없습니다.  
+
 ```yml
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -73,7 +76,7 @@ metadata:
   name: bookinfo
 spec:
   hosts:
-    - bookinfo.com    
+    - bookinfo.com    # URL이나, CIDR, kuber의 서비스명을 지정 할 수 있습니다. 
   http:
   - match:    # path 매칭 라우팅
     - uri:
